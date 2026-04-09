@@ -60,16 +60,16 @@ jobs:
   - script: |
       sudo apt-get update
 
-      sudo apt-get install -y clang-tools-14
+      sudo apt-get install -y clang-tools-18
     displayName: 'Install build dependencies'
 
   - script: |
       mkdir build && cd build
 
-      scan-build-14 --use-c++=g++-11 cmake -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ../
+      scan-build-18 --use-c++=g++-13 cmake -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ../
     displayName: 'Run CMake'
 
-  - script: cd build && scan-build-14 --use-c++=g++-11 --status-bugs make -j2
+  - script: cd build && scan-build-18 --use-c++=g++-13 --status-bugs make -j2
     displayName: 'Run static analysis with clang'
 
 - job: Linux
@@ -79,25 +79,25 @@ jobs:
   strategy:
     matrix:
       GCC:
-        CMakeArgs: '-D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=Release'
+        CMakeArgs: '-D CMAKE_CXX_COMPILER=g++-13 -D CMAKE_BUILD_TYPE=Release'
         TestsEnvArgs: ''
         ExtraPackages: ''
       libstdc++DebugDefines:
-        CMakeArgs: '-D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -D _GLIBCXX_DEBUG -D _GLIBCXX_DEBUG_PEDANTIC"'
+        CMakeArgs: '-D CMAKE_CXX_COMPILER=g++-13 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -D _GLIBCXX_DEBUG -D _GLIBCXX_DEBUG_PEDANTIC"'
         TestsEnvArgs: ''
         ExtraPackages: ''
       libc++DebugDefines:
-        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-14 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -D _LIBCPP_DEBUG=1 -stdlib=libc++"'
+        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-18 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -D _LIBCPP_DEBUG=1 -stdlib=libc++"'
         TestsEnvArgs: ''
-        ExtraPackages: 'clang-14 libc++-14-dev libc++abi-14-dev'
+        ExtraPackages: 'clang-18 libc++-18-dev libc++abi-18-dev'
       AddressSanitizer:
-        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-14 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls"'
+        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-18 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls"'
         TestsEnvArgs: 'ASAN_OPTIONS=detect_stack_use_after_return=1'
-        ExtraPackages: 'clang-14'
+        ExtraPackages: 'clang-18'
       UndefinedBehaviourSanitizer:
-        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-14 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -fsanitize=undefined -fno-omit-frame-pointer -fno-optimize-sibling-calls" -D CMAKE_EXE_LINKER_FLAGS="-lubsan"'
+        CMakeArgs: '-D CMAKE_CXX_COMPILER=clang++-18 -D CMAKE_BUILD_TYPE=Debug -D CMAKE_CXX_FLAGS="-O1 -fsanitize=undefined -fno-omit-frame-pointer -fno-optimize-sibling-calls" -D CMAKE_EXE_LINKER_FLAGS="-lubsan"'
         TestsEnvArgs: 'UBSAN_OPTIONS=print_stacktrace=1'
-        ExtraPackages: 'clang-14'
+        ExtraPackages: 'clang-18'
   steps:
   - template: linux-steps.yaml
 
@@ -122,23 +122,23 @@ jobs:
       sleep 3 && ./graph_test
     displayName: 'Run tests'
 
-- job: WindowsMSVS2019
+- job: WindowsMSVS2026
   timeoutInMinutes: 10
-  displayName: Windows MSVS 2019
+  displayName: Windows MSVS 2026
   pool:
-    vmImage: windows-2019
+    vmImage: windows-2026
   steps:
   - powershell: |
       mkdir build
       cd build
-      cmake -G "Visual Studio 16 2019" -D CMAKE_BUILD_TYPE=Release ../
+      cmake -G "Visual Studio 18 2026" -D CMAKE_BUILD_TYPE=Release ../
     displayName: 'Run CMake'
 
   - task: MSBuild@1
     inputs:
       solution: 'build/*.sln'
       msbuildLocationMethod: 'location'
-      msbuildVersion: '16.0'
+      msbuildVersion: '18.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
       msbuildArguments: /m /p:BuildInParallel=true
