@@ -109,7 +109,7 @@ jobs:
   - script: |
       mkdir build && cd build
 
-      cmake -D CMAKE_BUILD_TYPE=Release ../
+      cmake -D CMAKE_POLICY_VERSION_MINIMUM=3.2 -D CMAKE_BUILD_TYPE=Release ../
     displayName: 'Run CMake'
 
   - script: |
@@ -126,7 +126,7 @@ jobs:
   timeoutInMinutes: 10
   displayName: Windows MSVS 2026
   pool:
-    vmImage: windows-2026
+    vmImage: windows-2025
   steps:
   - powershell: |
       mkdir build
