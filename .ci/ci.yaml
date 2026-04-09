@@ -122,23 +122,23 @@ jobs:
       sleep 3 && ./graph_test
     displayName: 'Run tests'
 
-- job: WindowsMSVS2026
+- job: WindowsMSVS2022
   timeoutInMinutes: 10
-  displayName: Windows MSVS 2026
+  displayName: Windows MSVS 2022
   pool:
     vmImage: windows-2025
   steps:
   - powershell: |
       mkdir build
       cd build
-      cmake -G "Visual Studio 18 2026" -D CMAKE_BUILD_TYPE=Release ../
+      cmake -G "Visual Studio 17 2022" -D CMAKE_BUILD_TYPE=Release ../
     displayName: 'Run CMake'
 
   - task: MSBuild@1
     inputs:
       solution: 'build/*.sln'
       msbuildLocationMethod: 'location'
-      msbuildVersion: '18.0'
+      msbuildVersion: '17.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
       msbuildArguments: /m /p:BuildInParallel=true
